@@ -1,28 +1,148 @@
-.App {
-  text-align: center;
+@font-face { src: url("/assets/OpenSans.ttf"); font-family: "OpenSans" }
+@background: {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+};
+
+body {
+	margin: 0;
+	font-family: "OpenSans";
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.clock {
+	&.jam, &.timeout {
+		position: absolute;
+		width: 100px;
+		color: white;
+		bottom: 50px;
+		left: ~"calc(50% - 70px)";
+		margin: 20px;
+		display: flex;
+		flex-direction: column-reverse;
+		align-items: center;
+		background: black;
+		opacity: 0;
+
+		&.running {
+			opacity: 1;
+		}
+
+		> * {
+			z-index: 2;
+			position: relative;
+		}
+		.time {
+			display: none;
+		}
+		.time.inverted {
+			display: block;
+		}
+	}
+
+	&.jam .count:before {
+		content: "Jam ";
+	}
+	&.period .count:before {
+		content: "Period ";
+	}
+	&.timeout .count:before {
+		content: "Timeout";
+	}
+	&.intermission .count {
+		font-size: 1px;
+		letter-spacing: -1px;
+		color: transparent;
+		&:before {
+			content: "Half-Time";
+			color: white;
+			font-size: 1rem;
+			letter-spacing: normal;
+		}
+	}
+
+	&.period, &.intermission {
+		position: absolute;
+		bottom: 0px;
+		left: ~"calc(50% - 70px)";
+		width: 100px;
+		margin: 20px;
+		display: flex;
+		flex-direction: column-reverse;
+		align-items: center;
+		color: white;
+		background: black;
+		opacity: 0;
+
+		&.running {
+			opacity: 1;
+		}
+
+		> * {
+			z-index: 2;
+			position: relative;
+		}
+		.time {
+			display: block;
+		}
+		.time.inverted {
+			display: none;
+		}
+	}
+
+	&.running {
+		background: red;
+	}
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
-}
+.overlay {
+	.team {
+		margin: 20px;
+		position: absolute;
+		bottom: 0px;
+		width: ~"calc(50% - 80px)";
+		display: flex;
+		padding: 10px;
+		box-sizing: border-box;
+		color: white;
 
-.App-title {
-  font-size: 1.5em;
-}
+		.name {
+			flex-grow: 1;
+			text-transform: uppercase;
+			text-align: left;
+		}
 
-.App-intro {
-  font-size: large;
-}
+		> * {
+			position: relative;
+			z-index: 2;
+		}
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+		&::before {
+			@background();
+			background: black;
+			transform: skewX(24deg);
+		}
+
+		&.team-a {
+			left: 0px;
+			&::before {
+				transform: skewX(24deg);
+			}
+			
+		}
+		&.team-b {
+			right: 0px;
+			flex-direction: row-reverse;
+			.name {
+				text-align: right;
+			}
+			&::before {
+				transform: skewX(-24deg);
+			}
+		}
+	}
 }
