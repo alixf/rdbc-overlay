@@ -15,6 +15,7 @@ body {
 }
 
 .clock {
+	text-transform: uppercase;
 	&.jam, &.timeout {
 		position: absolute;
 		width: 100px;
@@ -36,11 +37,21 @@ body {
 			z-index: 2;
 			position: relative;
 		}
+	}
+	&.jam {
 		.time {
 			display: none;
 		}
 		.time.inverted {
 			display: block;
+		}
+	}
+	&.timeout {
+		.time {
+			display: block;
+		}
+		.time.inverted {
+			display: none;
 		}
 	}
 
@@ -50,8 +61,16 @@ body {
 	&.period .count:before {
 		content: "Period ";
 	}
-	&.timeout .count:before {
-		content: "Timeout";
+	&.timeout .count {
+		font-size: 1px;
+		letter-spacing: -1px;
+		color: transparent;
+		&:before {
+			content: "Timeout";
+			color: white;
+			font-size: 1rem;
+			letter-spacing: normal;
+		}
 	}
 	&.intermission .count {
 		font-size: 1px;
@@ -99,50 +118,130 @@ body {
 	}
 }
 
-.overlay {
-	.team {
-		margin: 20px;
-		position: absolute;
-		bottom: 0px;
-		width: ~"calc(50% - 80px)";
-		display: flex;
-		padding: 10px;
-		box-sizing: border-box;
-		color: white;
+.team {
+	margin: 20px;
+	position: absolute;
+	bottom: 0px;
+	width: ~"calc(50% - 80px)";
+	display: flex;
+	box-sizing: border-box;
+	color: white;
+	align-items: center;
 
-		.name {
-			flex-grow: 1;
-			text-transform: uppercase;
-			text-align: left;
-		}
+	.name {
+		flex-grow: 1;
+		text-transform: uppercase;
+		text-align: left;
+		padding: 3px;
+	}
+	.score {
+		padding: 3px 10px;
+	}
+	.color {
+		width: 1.2rem;
+		height: 1.2rem;
+		border: 1px solid white;
+		margin: 2px;
+	}
 
-		> * {
-			position: relative;
-			z-index: 2;
-		}
+	> * {
+		position: relative;
+		z-index: 2;
+	}
+	&::before {
+		@background();
+		background: black;
+	}
 
+	&.team-a {
+		left: 0px;
 		&::before {
-			@background();
-			background: black;
 			transform: skewX(24deg);
 		}
+		.color {
+			transform: skewX(24deg);
+			margin-right: 5px;
+		}
+		
+	}
+	&.team-b {
+		right: 0px;
+		flex-direction: row-reverse;
+		.name {
+			text-align: right;
+		}
+		&::before {
+			transform: skewX(-24deg);
+		}
+		.color {
+			transform: skewX(-24deg);
+			margin-left: 5px;
+		}
+	}
+}
 
-		&.team-a {
-			left: 0px;
-			&::before {
-				transform: skewX(24deg);
-			}
-			
+.jammer {
+	margin: 20px;
+	position: absolute;
+	bottom: 27px;
+	width: ~"calc(50% - 150px)";
+	display: flex;
+	padding: 3px 10px;
+	box-sizing: border-box;
+	color: white;
+
+	> * {
+		position: relative;
+		z-index: 2;
+	}
+
+	&::before {
+		@background();
+		background: rgba(0,0,0,0.5);
+		transform: skewX(24deg);
+	}
+	&.empty {
+		opacity: 0;
+	}
+
+	.number {
+		opacity: 0.67;
+	}
+
+	.name {
+		flex-grow: 1;
+	}
+
+	.lead {
+		text-transform: uppercase;
+		padding: 0px 5px;
+		opacity: 0;
+
+		&.active { opacity: 1; }
+		> * { 
+			position: relative;
+			z-index: 21;
 		}
-		&.team-b {
-			right: 0px;
-			flex-direction: row-reverse;
-			.name {
-				text-align: right;
-			}
-			&::before {
-				transform: skewX(-24deg);
-			}
+		&:before {
+			@background();
+			background: red;
+			z-index: 20;
 		}
+	}
+
+	&.team-a {
+		left: 0px;
+		&::before { transform: skewX(24deg); }
+		.lead:before { transform: skew(24deg); }
+		.number { margin-right: 0.5rem; }
+		
+	}
+	&.team-b {
+		right: 0px;
+		flex-direction: row-reverse;
+		&::before { transform: skewX(-24deg); }
+		.lead:before { transform: skew(-24deg); }
+		.number { margin-left: 0.5rem; }
+		.name { text-align: right; }
 	}
 }

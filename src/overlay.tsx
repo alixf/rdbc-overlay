@@ -11,6 +11,10 @@ interface Team {
 	name: string;
 	score: number;
 	jammer?: Player;
+	lead: boolean;
+	color: string;
+	timeouts: number;
+	reviews: number;
 }
 interface Clock {
 	running: boolean;
@@ -34,8 +38,8 @@ export class Overlay extends React.Component<{}, OverlayState> {
 	constructor(props: {}) {
 		super(props);
 		this.state = {
-			teamA: { name: "Team A", score: 0 },
-			teamB: { name: "Team B", score: 0 },
+			teamA: { name: "Team A", score: 0, lead: false, color: "#000000", reviews: 1, timeouts: 3 },
+			teamB: { name: "Team B", score: 0, lead: false, color: "#000000", reviews: 1, timeouts: 3 },
 			periodClock: { running: false, count: 0, time: 0, invertedTime: 0 },
 			jamClock: { running: false, count: 0, time: 0, invertedTime: 0 },
 			timeoutClock: { running: false, count: 0, time: 0, invertedTime: 0 },
@@ -87,9 +91,14 @@ export class Overlay extends React.Component<{}, OverlayState> {
 			switch (node.nodeName) {
 				case "Team": this.parseTeam(node); break;
 				case "Clock": this.parseClock(node); break;
+				case "TimeoutOwner": this.parseTimeoutOwner(node); break;
 				default: console.warn("not parsed", node); break;
 			}
 		}
+	}
+
+	parseTimeoutOwner(node: Element) {
+		console.log("timeout for team ", node.textContent);
 	}
 
 	parseTeam(teamNode: Element) {
@@ -102,25 +111,54 @@ export class Overlay extends React.Component<{}, OverlayState> {
 			const node = teamNode.children.item(i);
 			switch (node.nodeName) {
 				case "Name": this.setTeamName(id, node.textContent || ""); break;
-				case "LeadJammer": console.warn(node); break;
+				case "LeadJammer": this.setLead(id, node.textContent || ""); break;
 				case "Score": this.setTeamScore(id, parseInt(node.textContent || "")); break;
 				case "LastScore": console.warn(node); break;
 				case "Position": this.setTeamJammer(id, this.parsePlayer(node)); break;
+				case "Color":
+					if (node.getAttribute("Id") === "overlay_fg") {
+						const color = this.parseColor(node);
+						if (color) { this.setTeamColor(id, color); }
+					}
+					break;
 				default: console.warn("not parsed", node); break;
 			}
 		}
 	}
 
+	parseColor(colorNode?: Element) {
+		if (colorNode && colorNode.textContent) {
+			return colorNode.textContent;
+		}
+		return;
+	}
+
 	parsePlayer(playerNode: Element) {
 		const numberNode = playerNode.querySelector("Number");
 		const nameNode = playerNode.querySelector("Name");
-		if (numberNode && nameNode) {
+		if (numberNode && nameNode && numberNode.textContent && nameNode.textContent) {
 			return {
-				number: parseInt(numberNode.textContent || ""),
-				name: nameNode.textContent || ""
+				number: parseInt(numberNode.textContent),
+				name: nameNode.textContent
 			};
 		}
 		return undefined;
+	}
+
+	setLead(id: string, value: string) {
+		if (id === "1") {
+			this.setState(state => ({ teamA: {...state.teamA, lead: value === "Lead"} }));
+		} else {
+			this.setState(state => ({ teamB: {...state.teamB, lead: value === "Lead"} }));
+		}
+	}
+
+	setTeamColor(id: string, color: string) {
+		if (id === "1") {
+			this.setState(state => ({ teamA: {...state.teamA, color} }));
+		} else {
+			this.setState(state => ({ teamB: {...state.teamB, color} }));
+		}
 	}
 
 	setTeamJammer(id: string, jammer?: Player) {
@@ -213,7 +251,11 @@ export class Overlay extends React.Component<{}, OverlayState> {
 	render() {
 		return <div className="overlay">
 			{this.renderTeam(this.state.teamA, "team-a")}
+			{this.renderJammer(this.state.teamA, "team-a")}
+
 			{this.renderTeam(this.state.teamB, "team-b")}
+			{this.renderJammer(this.state.teamB, "team-b")}
+
 			{this.renderClock(this.state.periodClock, "period")}
 			{this.renderClock(this.state.jamClock, "jam")}
 			{this.renderClock(this.state.timeoutClock, "timeout")}
@@ -231,8 +273,17 @@ export class Overlay extends React.Component<{}, OverlayState> {
 
 	renderTeam(team: Team, className: string) {
 		return <div className={`team ${className}`}>
+			<div className="color" style={{backgroundColor: team.color}}></div>
 			<div className="name">{team.name}</div>
 			<div className="score">{team.score}</div>
+		</div>;
+	}
+
+	renderJammer(team: Team, className: string) {
+		return <div className={`jammer ${className} ${team.jammer ? "" : "empty"}`}>
+			<div className="number">{team.jammer ? team.jammer.number : "----"}</div>
+			<div className="name">{team.jammer ? team.jammer.name : "----------"}</div>
+			<div className={`lead ${team.lead ? "active" : ""}`}><div>lead</div></div>
 		</div>;
 	}
 }
