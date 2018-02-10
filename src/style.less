@@ -20,14 +20,41 @@ body {
 		position: absolute;
 		width: 100px;
 		color: white;
-		bottom: 50px;
+		bottom: 22px;
 		left: ~"calc(50% - 70px)";
 		margin: 20px;
 		display: flex;
 		flex-direction: column-reverse;
 		align-items: center;
-		background: black;
 		opacity: 0;
+		background: black;
+
+		&::before {
+			content : "";
+			position: absolute;
+			top: 0px;
+			left: -8px;
+			display: block;
+			height: 100%;
+			width: 50%;
+			z-index: 2;
+			transform: skewX(-24deg);
+			background: black;
+			z-index: 1;
+		}
+		&::after {
+			content : "";
+			position: absolute;
+			top: 0px;
+			right: -8px;
+			display: block;
+			height: 100%;
+			width: 50%;
+			z-index: 2;
+			transform: skewX(24deg);
+			background: black;
+			z-index: 1;
+		}
 
 		&.running {
 			opacity: 1;
@@ -36,6 +63,12 @@ body {
 		> * {
 			z-index: 2;
 			position: relative;
+		}
+		.count {
+			font-size: 0.75em;
+			&::before {
+				color: rgba(255,255,255,0.67);
+			}
 		}
 	}
 	&.jam {
@@ -45,31 +78,37 @@ body {
 		.time.inverted {
 			display: block;
 		}
+		.count:before {
+			content: "Jam ";
+		}
 	}
-	&.timeout {
+	&.period {
 		.time {
 			display: block;
 		}
 		.time.inverted {
 			display: none;
 		}
+		.count:before {
+			content: "Period ";
+			color: rgba(255,255,255,0.67);
+		}
 	}
 
-	&.jam .count:before {
-		content: "Jam ";
-	}
-	&.period .count:before {
-		content: "Period ";
-	}
-	&.timeout .count {
-		font-size: 1px;
-		letter-spacing: -1px;
-		color: transparent;
-		&:before {
-			content: "Timeout";
-			color: white;
-			font-size: 1rem;
-			letter-spacing: normal;
+	&.timeout {
+		.count {
+			font-size: 1px;
+			letter-spacing: -1px;
+			color: transparent;
+			&:before {
+				content: "Timeout";
+				color: white;
+				font-size: 0.75rem;
+				letter-spacing: normal;
+			}
+		}
+		.time.inverted {
+			display: none;
 		}
 	}
 	&.intermission .count {
@@ -79,50 +118,81 @@ body {
 		&:before {
 			content: "Half-Time";
 			color: white;
-			font-size: 1rem;
 			letter-spacing: normal;
 		}
+	}
+
+	&.intermission {
+		opacity: 0;
+		&.running {
+			opacity: 1;
+		}
+	}
+	
+	&.period {
+		opacity: 1;
 	}
 
 	&.period, &.intermission {
 		position: absolute;
 		bottom: 0px;
-		left: ~"calc(50% - 70px)";
-		width: 100px;
-		margin: 20px;
+		left: ~"calc(50% - 75px)";
+		width: 110px;
+		margin: 10px 20px;
 		display: flex;
 		flex-direction: column-reverse;
 		align-items: center;
 		color: white;
 		background: black;
-		opacity: 0;
-
-		&.running {
-			opacity: 1;
-		}
 
 		> * {
 			z-index: 2;
 			position: relative;
 		}
 		.time {
+			font-size: 0.75em;
 			display: block;
 		}
 		.time.inverted {
 			display: none;
 		}
-	}
-
-	&.running {
-		background: red;
+		.count {
+			font-size: 0.55em;
+		}
+		&::before {
+			content : "";
+			position: absolute;
+			top: 0px;
+			left: -6px;
+			display: block;
+			height: 100%;
+			width: 50%;
+			z-index: 2;
+			transform: skewX(24deg);
+			background: black;
+			z-index: 1;
+		}
+		&::after {
+			content : "";
+			position: absolute;
+			top: 0px;
+			right: -6px;
+			display: block;
+			height: 100%;
+			width: 50%;
+			z-index: 2;
+			transform: skewX(-24deg);
+			background: black;
+			z-index: 1;
+		}
 	}
 }
 
 .team {
-	margin: 20px;
+	margin: 10px 20px;
 	position: absolute;
 	bottom: 0px;
-	width: ~"calc(50% - 80px)";
+	width: ~"calc(50% - 85px)";
 	display: flex;
 	box-sizing: border-box;
 	color: white;
@@ -183,8 +253,8 @@ body {
 .jammer {
 	margin: 20px;
 	position: absolute;
-	bottom: 27px;
-	width: ~"calc(50% - 150px)";
+	bottom: 17px;
+	width: ~"calc(50% - 200px)";
 	display: flex;
 	padding: 3px 10px;
 	box-sizing: border-box;
@@ -243,5 +313,44 @@ body {
 		.lead:before { transform: skew(-24deg); }
 		.number { margin-left: 0.5rem; }
 		.name { text-align: right; }
+	}
+}
+
+.jam-score {
+	position: absolute;
+	position: absolute;
+	bottom: 42px;
+	width: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 3px 10px;
+	box-sizing: border-box;
+	color: white;
+	opacity: 0;
+
+	&.active {
+		opacity: 1;
+	}
+	&::before {
+		@background();
+		background: rgba(0,0,0,0.8);
+		z-index: 1;
+	}
+	> * {
+		z-index: 2;
+	}
+
+	&.team-a {
+		left: ~"calc(50% - 30px - 95px)";
+		&::before {
+			transform: skewX(-24deg);
+		}
+	}
+	&.team-b {
+		left: ~"calc(50% - 30px + 95px)";
+		&::before {
+			transform: skewX(24deg);
+		}
 	}
 }

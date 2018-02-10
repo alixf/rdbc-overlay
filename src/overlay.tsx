@@ -10,6 +10,7 @@ interface Player {
 interface Team {
 	name: string;
 	score: number;
+	lastScore: number;
 	jammer?: Player;
 	lead: boolean;
 	color: string;
@@ -38,8 +39,8 @@ export class Overlay extends React.Component<{}, OverlayState> {
 	constructor(props: {}) {
 		super(props);
 		this.state = {
-			teamA: { name: "Team A", score: 0, lead: false, color: "#000000", reviews: 1, timeouts: 3 },
-			teamB: { name: "Team B", score: 0, lead: false, color: "#000000", reviews: 1, timeouts: 3 },
+			teamA: { name: "Team A", score: 0, lastScore: 0, lead: false, color: "#000000", reviews: 1, timeouts: 3 },
+			teamB: { name: "Team B", score: 0, lastScore: 0, lead: false, color: "#000000", reviews: 1, timeouts: 3 },
 			periodClock: { running: false, count: 0, time: 0, invertedTime: 0 },
 			jamClock: { running: false, count: 0, time: 0, invertedTime: 0 },
 			timeoutClock: { running: false, count: 0, time: 0, invertedTime: 0 },
@@ -113,7 +114,7 @@ export class Overlay extends React.Component<{}, OverlayState> {
 				case "Name": this.setTeamName(id, node.textContent || ""); break;
 				case "LeadJammer": this.setLead(id, node.textContent || ""); break;
 				case "Score": this.setTeamScore(id, parseInt(node.textContent || "")); break;
-				case "LastScore": console.warn(node); break;
+				case "LastScore": this.setTeamLastScore(id, parseInt(node.textContent || "")); break;
 				case "Position": this.setTeamJammer(id, this.parsePlayer(node)); break;
 				case "Color":
 					if (node.getAttribute("Id") === "overlay_fg") {
@@ -185,6 +186,14 @@ export class Overlay extends React.Component<{}, OverlayState> {
 		}
 	}
 
+	setTeamLastScore(id: string, lastScore: number) {
+		if (id === "1") {
+			this.setState(state => ({ teamA: {...state.teamA, lastScore} }));
+		} else {
+			this.setState(state => ({ teamB: {...state.teamB, lastScore} }));
+		}
+	}
+
 	parseClock(clockNode: Element) {
 		const id = clockNode.getAttribute("Id");
 		if (!id) {
@@ -252,11 +261,13 @@ export class Overlay extends React.Component<{}, OverlayState> {
 		return <div className="overlay">
 			{this.renderTeam(this.state.teamA, "team-a")}
 			{this.renderJammer(this.state.teamA, "team-a")}
+			{this.renderJamScore(this.state.teamA, "team-a")}
 
 			{this.renderTeam(this.state.teamB, "team-b")}
 			{this.renderJammer(this.state.teamB, "team-b")}
+			{this.renderJamScore(this.state.teamB, "team-b")}
 
-			{this.renderClock(this.state.periodClock, "period")}
+			{this.state.intermissionClock.running ? null : this.renderClock(this.state.periodClock, "period")}
 			{this.renderClock(this.state.jamClock, "jam")}
 			{this.renderClock(this.state.timeoutClock, "timeout")}
 			{this.renderClock(this.state.intermissionClock, "intermission")}
@@ -284,6 +295,13 @@ export class Overlay extends React.Component<{}, OverlayState> {
 			<div className="number">{team.jammer ? team.jammer.number : "----"}</div>
 			<div className="name">{team.jammer ? team.jammer.name : "----------"}</div>
 			<div className={`lead ${team.lead ? "active" : ""}`}><div>lead</div></div>
+		</div>;
+	}
+
+	renderJamScore(team: Team, className: string) {
+		const jamScore = team.score - team.lastScore;
+		return <div className={`jam-score ${className} ${jamScore > 0 ? "active" : ""}`}>
+			<div>+{jamScore}</div>
 		</div>;
 	}
 }
